@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model recipes {
+  id          String   @id @default(uuid())
+  nama        String   @db.VarChar(255)
+  deskripsi   String?
+  category    String?  @db.VarChar(20)
+  kesulitan   String?  @db.VarChar(20)
+  waktu_masak Int?
+  porsi       Int?
+  gambar      String?
+  created_at  DateTime @default(now())
+
+  ingredients ingredients[]
+  steps       steps[]
+
+  @@index([created_at])
+  @@index([category])
+  @@index([kesulitan])
+}
+
+model ingredients {
+  id        String @id @default(uuid())
+  recipe_id String
+  nama      String
+  jumlah    String?
+  satuan    String?
+
+  recipes   recipes @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+
+  @@index([recipe_id])
+}
+
+model steps {
+  id        String @id @default(uuid())
+  recipe_id String
+  urutan    Int
+  deskripsi String
+
+  recipes   recipes @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+
+  @@index([recipe_id])
+  @@index([recipe_id, urutan])
+}
